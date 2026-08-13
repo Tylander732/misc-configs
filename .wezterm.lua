@@ -5,8 +5,6 @@ local compact_font_size = 9.5
 local solid_bg = 1
 local opaque_bg = 0.95
 
-local transparent_flag = true
-
 config.default_domain = 'WSL:Ubuntu'
 config.check_for_updates = false
 config.enable_tab_bar = false
@@ -19,38 +17,29 @@ config.font = wezterm.font 'CaskaydiaMono Nerd Font Mono'
 config.window_decorations = 'RESIZE'
 config.window_close_confirmation = 'NeverPrompt'
 
-config.window_background_image = 'C:\\Documents\\WezTerm\\TermBG\\08.jpg'
+local transparent_flag = true
+local bg_image = 'C:\\Documents\\WezTerm\\TermBG\\08.jpg'
 
 if transparent_flag == true then
   config.window_background_opacity = opaque_bg
+  config.window_background_image = ''
 else
   config.window_background_opacity = solid_bg
+  config.window_background_image = bg_image
 end
 
 wezterm.on('toggle-background', function(window, pane)
   local overrides = window:get_config_overrides() or {}
-  if config.window_background_image then
-    local current_image = overrides.window_background_image
-    if current_image == nil then
-      current_image = config.window_background_image
-    end
-    if current_image == '' then
-      overrides.window_background_image = config.window_background_image
-      overrides.window_background_opacity = solid_bg
-    else
-      overrides.window_background_image = ''
-      overrides.window_background_opacity = opaque_bg
-    end
+  local current_image = overrides.window_background_image
+  if current_image == nil then
+    current_image = config.window_background_image
+  end
+  if current_image == '' then
+    overrides.window_background_image = bg_image
+    overrides.window_background_opacity = solid_bg
   else
-    local current_opacity = overrides.window_background_opacity
-    if current_opacity == nil then
-      current_opacity = config.window_background_opacity
-    end
-    if current_opacity < solid_bg then
-      overrides.window_background_opacity = solid_bg
-    else
-      overrides.window_background_opacity = opaque_bg
-    end
+    overrides.window_background_image = ''
+    overrides.window_background_opacity = opaque_bg
   end
   window:set_config_overrides(overrides)
 end)
