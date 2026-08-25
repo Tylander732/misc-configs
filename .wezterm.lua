@@ -18,7 +18,8 @@ config.window_decorations = 'RESIZE'
 config.window_close_confirmation = 'NeverPrompt'
 
 local transparent_flag = true
-local bg_image = 'C:\\Documents\\WezTerm\\TermBG\\08.jpg'
+local bg_image = nil
+--local bg_image = 'C:\\Documents\\WezTerm\\TermBG\\08.jpg'
 
 if transparent_flag == true then
   config.window_background_opacity = opaque_bg
@@ -28,23 +29,32 @@ else
   config.window_background_image = bg_image
 end
 
-wezterm.on('toggle-background', function(window, pane)
+wezterm.on('toggle-background', function(window)
   local overrides = window:get_config_overrides() or {}
-  local current_image = overrides.window_background_image
-  if current_image == nil then
-    current_image = config.window_background_image
-  end
-  if current_image == '' then
-    overrides.window_background_image = bg_image
-    overrides.window_background_opacity = solid_bg
+  local current_opacity = overrides.window_background_opacity or config.window_background_opacity
+
+  if bg_image then
+    if current_opacity == opaque_bg then
+      overrides.window_background_image = bg_image
+      overrides.window_background_opacity = solid_bg
+    else
+      overrides.window_background_image = ''
+      overrides.window_background_opacity = opaque_bg
+    end
   else
-    overrides.window_background_image = ''
-    overrides.window_background_opacity = opaque_bg
+    if current_opacity == opaque_bg then
+      overrides.window_background_opacity = solid_bg
+      overrides.window_background_image = ''
+    else
+      overrides.window_background_opacity = opaque_bg
+      overrides.window_background_image = ''
+    end
   end
+
   window:set_config_overrides(overrides)
 end)
 
-wezterm.on('font-size-switch', function(window, pane)
+wezterm.on('font-size-switch', function(window)
   local overrides = window:get_config_overrides() or {}
   local current_font_size = overrides.font_size or config.font_size
   if current_font_size == normal_font_size then
